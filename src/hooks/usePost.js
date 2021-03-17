@@ -4,8 +4,10 @@ import { useEffect } from "react";
 export function usePost() {
   useEffect(() => {
     function createPostWithFetch() {
+      const controller = new AbortController();
       const fetchOptions = {
         method: "POST",
+        signal: controller.signal,
         /* JSON.stringify is a difference between axios and fetch */
         body: JSON.stringify({
           title: "foo",
@@ -16,9 +18,16 @@ export function usePost() {
           "Content-type": "application/json; charset=UTF-8",
         },
       };
-      fetch("https://jsonplaceholder.typicode.com/posts", fetchOptions)
+      const promise = fetch(
+        "https://jsonplaceholder.typicode.com/posts",
+        fetchOptions
+      );
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+      promise
         .then((response) => response.json())
-        .then((json) => console.log("fetch json", json));
+        .then((json) => console.log("fetch json", json))
+        .catch((error) => console.error("timeout exceeded"));
     }
     createPostWithFetch();
   }, []);
@@ -28,11 +37,12 @@ export function usePost() {
       const axiosOptions = {
         /* Add url here is a between axios and fetch */
         url: "https://jsonplaceholder.typicode.com/posts",
-        method: 'POST',
+        method: "POST",
+        timeout: 4000, // 4 seconds timeout
         data: {
           title: "foo",
           body: "bar",
-          userId: 1,
+          userId: 2,
         },
         headers: {
           "Content-type": "application/json; charset=UTF-8",
@@ -40,7 +50,8 @@ export function usePost() {
       };
       axios(axiosOptions)
         /* Axios also returns a response / error with a data property */
-        .then((response) => console.log("axios json", response.data));
+        .then((response) => console.log("axios json", response.data))
+        .catch((error) => console.error("timeout exceeded"));
     }
 
     createPostWithAxios();
