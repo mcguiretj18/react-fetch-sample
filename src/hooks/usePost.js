@@ -1,19 +1,6 @@
 import axios from "axios";
 import { useEffect } from "react";
-
-axios.interceptors.request.use((config) => {
-  /* set configuration */
-  console.log("Request was sent with axios");
-
-  return config;
-});
-
-const fetchWithInteceptor = ((api) => {
-  return (...args) => {
-    const result = api.apply(this, args);
-    return result.then(console.log("Request was sent with fetch"));
-  };
-})(window.fetch);
+import { fetchWithInteceptor } from "../config";
 
 export function usePost() {
   useEffect(() => {
