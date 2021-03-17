@@ -1,6 +1,20 @@
 import axios from "axios";
 import { useEffect } from "react";
 
+axios.interceptors.request.use((config) => {
+  /* set configuration */
+  console.log("Request was sent with axios");
+
+  return config;
+});
+
+const fetchWithInteceptor = ((api) => {
+  return (...args) => {
+    const result = api.apply(this, args);
+    return result.then(console.log("Request was sent with fetch"));
+  };
+})(window.fetch);
+
 export function usePost() {
   useEffect(() => {
     function createPostWithFetch() {
@@ -18,10 +32,11 @@ export function usePost() {
           "Content-type": "application/json; charset=UTF-8",
         },
       };
-      const promise = fetch(
+      const promise = fetchWithInteceptor(
         "https://jsonplaceholder.typicode.com/posts",
         fetchOptions
       );
+      // eslint-disable-next-line no-unused-vars
       const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       promise
